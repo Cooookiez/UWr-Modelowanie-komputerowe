@@ -15,6 +15,14 @@
 
 using namespace std;
 
+string replaceChar(string str, char ch1, char ch2) {
+    // replace ch1 to ch2
+    for (int i = 0; i < str.length(); i++) {
+        if (str[i] == ch1) str[i] = ch2;
+    }
+    return str;
+}
+
 class GameOfLife {
 private:
 
@@ -86,37 +94,23 @@ private:
 
     int numberOfNeighbors(int h, int w) {
         int numbers = 0;
-        // my cell is not in first row
-        if (h-1 > 0) {
-            if (cells_main[h-1][w] == true) numbers++;
-            // my cell is not in first collumn
-            if (w-1 > 0)
-                if (cells_main[h-1][w-1] == true) numbers++;
-            // my cell is not in last collumn
-            if (w+1 > this->w)
-                if (cells_main[h-1][w-1] == true) numbers++;
-        }
-        // my cell is not in last row
-        if (h+1 < this->h) {
-            if (cells_main[h+1][w] == true) numbers++;
-            // my cell is not in first collumn
-            if (w-1 > 0)
-                if (cells_main[h+1][w-1] == true) numbers++;
-            // my cell is not in last collumn
-            if (w+1 > this->w)
-                if (cells_main[h+1][w-1] == true) numbers++;
-        }
+        int cell_up = h-1 >= 0 ? h-1 : this->h-1;
+        int cell_down = h+1 < this->h ? h+1 : 0;
+        int cell_right = w+1 < this->w ? w+1 : 0;
+        int cell_left = w-1 >= 0 ? w-1 : this->w-1;
 
-        // olny left and right cells are left to check
-        // my cell is not in first collumn
-        if (w-1 > 0) {
-            if (cells_main[h][w-1] == true) numbers++;
-        }
-        // my cell is not in last collumn
-        if (w+1 > this->w) {
-            if (cells_main[h][w+1] == true) numbers++;
-        }
+        // 1 2 3
+        // 4 _ 6
+        // 7 8 9
 
+        numbers += cells_main[cell_up][cell_left];      // 1
+        numbers += cells_main[cell_up][w];              // 2
+        numbers += cells_main[cell_up][cell_right];     // 3
+        numbers += cells_main[h][cell_left];            // 4
+        numbers += cells_main[h][cell_right];           // 6
+        numbers += cells_main[cell_down][cell_left];    // 7
+        numbers += cells_main[cell_down][w];            // 8
+        numbers += cells_main[cell_down][cell_right];   // 9
         return numbers;
     }
 
@@ -239,7 +233,7 @@ int main(int argc, char* argv[]) {
                 }
                 break;
             } else if (strcmp(argv[1], "zad2") == 0) {
-                int t_max = 1000;
+                int t_max = 1200;
                 double p[] = {.05, .10, .15, .20, .25, .30, .35, .40, .45, .50, .55, .60, .65, .70, .75, .80, .85, .90, .95};
                 int p_size = sizeof(p)/sizeof(double);
                 double values[p_size][t_max];
@@ -262,16 +256,19 @@ int main(int argc, char* argv[]) {
                 ofstream ofile;
                 string filename = "data/zad2.txt";
                 ofile.open(filename, ios::out);
+                string tmpVal;
                 //header
-                ofile << "t";
-                for (int i = 0; i < p_size; i++)
-                    ofile << " " << p[i];
-                ofile << endl;
+                // ofile << "t";
+                // for (int i = 0; i < p_size; i++)
+                //     ofile << "\t" << p[i];
+                // ofile << endl;
                 // values
                 for (int i = 0; i < t_max; i++) {
                     ofile << i; // t (step)
                     for (int j = 0; j < p_size; j++) {
-                        ofile << " " << values[j][i];
+                        tmpVal = to_string(values[j][i]);
+                        tmpVal = replaceChar(tmpVal, '.', ',');
+                        ofile << "\t" << tmpVal;
                     }
                     ofile << endl;
                 }
@@ -281,14 +278,13 @@ int main(int argc, char* argv[]) {
                 ofstream ofile;
                 int n_max = 100;
                 int t_max = 1000;
-                double p = .9;
-                double L[] = {10, 100, 200, 500, 1000};
+                double p = .75; //p0
+                double L[] = {10, 100, 200, 500, 1000}; // wielkosc ukłądu (m x n)
                 for (int l = 0; l < sizeof(L)/sizeof(double); l++) {
-                    myGame = GameOfLife(.5, L[l]);
+                    myGame = GameOfLife(p, L[l]);
                     for (int n = 0; n < n_max; n++) {
-                        string filename = "data/zad3.txt";
-                        ofile.open(filename, ios::out);
-                        ofile << "t value" << endl; // header
+                        string filename = "data/zad3_L_equal_to_" + to_string(L[l]) + ".txt";
+                        ofile.open(filename, ios::in);
                         for (int t = 0; t < t_max; t++) {
                             
                         }
