@@ -278,17 +278,45 @@ int main(int argc, char* argv[]) {
                 ofstream ofile;
                 int n_max = 100;
                 int t_max = 1000;
-                double p = .75; //p0
+                double p = .5; //p0
                 double L[] = {10, 100, 200, 500, 1000}; // wielkosc ukłądu (m x n)
                 for (int l = 0; l < sizeof(L)/sizeof(double); l++) {
-                    myGame = GameOfLife(p, L[l]);
-                    for (int n = 0; n < n_max; n++) {
+                    vector<double> X;
+                    for (int n = 0; n < n_max; n++) { // "N=100 symulacji z różnymi warunkami początkowymi dla wybranego prawdopodobieństwa p0"
                         string filename = "data/zad3_L_equal_to_" + to_string(L[l]) + ".txt";
                         ofile.open(filename, ios::in);
-                        for (int t = 0; t < t_max; t++) {
-                            
+                        myGame = GameOfLife(p, L[l]);
+                        for (int t = 0; t < t_max; t++) {// one simulation
+                            myGame.nextStep();
                         }
+                        X.push_back(myGame.getPopulation());
                     }
+                    // standart error
+                    int index = 0;
+                    double X_avg = 0;
+                    double om = 0;
+                    double se = 0;
+                    // avg
+                    for (int i = 0; i < X.size(); i++) {
+                        X_avg += X[i];
+                        index++;
+                    }
+                    X_avg /= index;
+
+                    // odchylenie
+                    for (int i = 0; i < X.size(); i++) {
+                        om += (X[i] - X_avg) * (X[i] - X_avg);
+                    }
+                    om /= index;
+                    om = sqrt(om);
+                    se = om / sqrt(index);
+                    cout << "\n";
+                    cout << "===== " << L[l] << " x " << L[l] << " =====\n";
+                    cout << "p = " << p << "  | n = " << n_max << " | t = " << t_max << "\n";
+                    cout << "Srednia = " << X_avg << "\n";
+                    cout << "om = " << om << "\n";
+                    cout << "Blad Standartowy = " << se << "\n";
+                    cout << "\n";
                 }
             }
     }
